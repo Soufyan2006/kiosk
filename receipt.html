@@ -1,12 +1,88 @@
-<form action="receipt.php" method="post">
-    <label for="customer_name">Name:</label>
-    <input type="text" id="customer_name" name="customer_name" required>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .receipt-container { width: 50%; margin: auto; border: 1px solid black; padding: 20px; border-radius: 5px; }
+        .order-item { margin: 10px 0; padding: 10px; border-bottom: 1px solid gray; text-align: left; }
+        .total { font-size: 20px; font-weight: bold; }
+        .back-btn { margin-top: 20px; padding: 10px; background: blue; color: white; cursor: pointer; border: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
 
-    <label for="product_name">Product:</label>
-    <input type="text" id="product_name" name="product_name" required>
+    <div class="receipt-container">
+        <h2>Order Receipt</h2>
+        <div id="receipt"></div>
+        <p class="total" id="totalAmount"></p>
+        <button class="back-btn" onclick="goBack()">Back to Home</button>
+    </div>
 
-    <label for="price">Price:</label>
-    <input type="number" id="price" name="price" step="0.01" required>
+    <script>
+        function displayReceipt() {
+            let order = JSON.parse(localStorage.getItem("order")) || [];
+            let receiptContainer = document.getElementById("receipt");
+            let totalAmount = 0;
 
-    <button type="submit">Place Order</button>
-</form>
+            if (order.length === 0) {
+                receiptContainer.innerHTML = "<p>No order found!</p>";
+                return;
+            }
+
+            receiptContainer.innerHTML = order.map(item => {
+                totalAmount += item.price * item.quantity;
+                return `
+                    <div class="order-item">
+                        <strong>${item.name}</strong> - $${item.price} x ${item.quantity} = $${(item.price * item.quantity).toFixed(2)}
+                    </div>
+                `;
+            }).join("");
+
+            document.getElementById("totalAmount").innerText = `Total: $${totalAmount.toFixed(2)}`;
+        }
+
+        function goBack() {
+            window.location.href = "product.html"; // Go back to main page
+        }
+
+        displayReceipt(); // Call function on page load
+
+
+        function placeOrder() {
+    let order = JSON.parse(localStorage.getItem("order")) || [];
+
+    if (order.length === 0) {
+        alert("Your order is empty!");
+        return;
+    }
+
+    fetch("submit_order.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ order }) // Send order as JSON
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Order placed successfully!");
+            localStorage.removeItem("order"); // Clear local storage after submitting
+            window.location.href = "thank_you.html"; // Redirect to confirmation page
+        } else {
+            alert("Error: " + data.error);
+        }
+    })
+    .catch(error => {
+        console.error("Error submitting order:", error);
+        alert("Failed to place order.");
+    });
+}
+
+    </script>
+
+</body>
+</html>

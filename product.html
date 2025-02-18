@@ -53,6 +53,15 @@
             border-radius: 5px;
             margin-top: 10px;
         }
+        .Place {
+            background-color: green;
+            color: white;
+            padding: 5px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -66,6 +75,17 @@
     <h2>Order List</h2>
     <div id="orderContainer"></div>
     <button class="clear-btn" onclick="clearOrder()">Clear Order</button>
+    <button class="Place" onclick="placeOrder()">Place Order</button>
+
+    <script>
+        function placeOrder() {
+            if (order.length === 0) {
+                alert("Your order is empty!");
+                return;
+            }
+            window.location.href = "receipt.html"; // Redirect to receipt page
+        }
+    </script>
 
     <script>
         let productsData = [];
